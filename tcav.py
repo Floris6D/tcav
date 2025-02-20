@@ -6,6 +6,7 @@ import numpy as np
 import run_params
 import tensorflow as tf
 import utils
+from activation_generator import get_activations_for_concept
 
 import os
 NEG_PREFIX = "Neg-"
@@ -159,6 +160,20 @@ class TCAV(object):
         # parameters
         self.params = self.get_params()
         tf.compat.v1.logging.info('TCAV will %s params' % len(self.params))
+
+
+
+    def compute_tcav(self, bottlenecks, concept, random_counterpart):
+        if not isinstance(bottlenecks, list):
+            bottlenecks = [bottlenecks]
+        for bottleneck in bottlenecks:
+            acts_concept = get_activations_for_concept(concept, bottleneck)
+            acts_random = get_activations_for_concept(random_counterpart, bottleneck)
+            
+            
+
+        # cav_hparams = CAV.default_hparams()
+        # cav_instance = get_or_train_cav([concept], bottlenecks[0], acts, cav_dir=self.cav_dir, cav_hparams=cav_hparams)
 
     def run(self, num_workers=10, run_parallel=False):
         """Run TCAV for all parameters (concept and random), write results to html.

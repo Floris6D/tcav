@@ -4,4 +4,6 @@
 /image_net_subsets/
 /tcav_class_test/
 /imagenet_comp_graph_label_strings.txt
+/weights/
+/source_dir
 *._*
