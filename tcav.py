@@ -7,6 +7,9 @@ import run_params
 import tensorflow as tf
 import utils
 
+import os
+NEG_PREFIX = "Neg-"
+
 try:
     xrange  # Python 2
 except NameError:
@@ -135,7 +138,7 @@ class TCAV(object):
           num_random_exp: number of random experiments to compare against.
           random_concepts: A list of names of random concepts for the random
                            experiments to draw from. Optional, if not provided, the
-                           names will be random500_{i} for i in num_random_exp.
+                           names will be NEG_PREFIX_..._{i} for i in num_random_exp.
         """
         self.target = target
         self.concepts = concepts
@@ -155,7 +158,7 @@ class TCAV(object):
                                          random_concepts=random_concepts)
         # parameters
         self.params = self.get_params()
-        tf.logging.info('TCAV will %s params' % len(self.params))
+        tf.compat.v1.logging.info('TCAV will %s params' % len(self.params))
 
     def run(self, num_workers=10, run_parallel=False):
         """Run TCAV for all parameters (concept and random), write results to html.
@@ -169,7 +172,7 @@ class TCAV(object):
         """
         # for random exp,  a machine with cpu = 30, ram = 300G, disk = 10G and
         # pool worker 50 seems to work.
-        tf.logging.info('running %s params' % len(self.params))
+        tf.compat.v1.logging.info('running %s params' % len(self.params))
         now = time.time()
         if run_parallel:
             pool = multiprocessing.Pool(num_workers)
@@ -177,9 +180,9 @@ class TCAV(object):
         else:
             results = []
             for i, param in enumerate(self.params):
-                tf.logging.info('Running param %s of %s' % (i, len(self.params)))
+                tf.compat.v1.logging.info('Running param %s of %s' % (i, len(self.params)))
                 results.append(self._run_single_set(param))
-        tf.logging.info('Done running %s params. Took %s seconds...' % (len(
+        tf.compat.v1.logging.info('Done running %s params. Took %s seconds...' % (len(
             self.params), time.time() - now))
         return results
 
@@ -201,7 +204,7 @@ class TCAV(object):
         cav_dir = param.cav_dir
         # first check if target class is in model.
 
-        tf.logging.info('running %s %s' % (target_class, concepts))
+        tf.compat.v1.logging.info('running %s %s' % (target_class, concepts))
 
         # Get acts
         acts = activation_generator.process_and_load_activations(
@@ -265,7 +268,7 @@ class TCAV(object):
           num_random_exp: number of random experiments to run to compare.
           random_concepts: A list of names of random concepts for the random experiments
                        to draw from. Optional, if not provided, the names will be
-                       random500_{i} for i in num_random_exp.
+                       NEG_PREFIX_{i} for i in num_random_exp.
         """
 
         target_concept_pairs = [(self.target, self.concepts)]
@@ -284,8 +287,12 @@ class TCAV(object):
 
         # ith random concept
         def get_random_concept(i):
-            return (random_concepts[i] if random_concepts
-                    else 'random500_{}'.format(i))
+            if random_concepts: 
+                return random_concepts[i] 
+            else:
+                names = os.listdir(self.activation_generator.source_dir)
+                neg_names = [name for name in names if NEG_PREFIX in name]
+                return neg_names[i]
 
         if self.random_counterpart is None:
             # TODO random500_1 vs random500_0 is the same as 1 - (random500_0 vs random500_1)
@@ -327,7 +334,7 @@ class TCAV(object):
         for bottleneck in self.bottlenecks:
             for target_in_test, concepts_in_test in self.pairs_to_test:
                 for alpha in self.alphas:
-                    tf.logging.info('%s %s %s %s', bottleneck, concepts_in_test,
+                    tf.compat.v1.logging.info('%s %s %s %s', bottleneck, concepts_in_test,
                                     target_in_test, alpha)
                     params.append(
                         run_params.RunParams(bottleneck, concepts_in_test, target_in_test,

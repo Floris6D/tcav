@@ -1,0 +1,21 @@
+name: tcav
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - pip
+  - numpy
+  - scipy
+  - matplotlib
+  - pillow
+  - scikit-learn
+  - pytorch
+  - torchvision
+  - tensorflow
+  - tensorflow-hub
+  - tensorflow-datasets
+  - absl-py
+  - pickle5
+  - pip:
+      - gc

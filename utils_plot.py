@@ -31,7 +31,7 @@ def plot_results(results, random_counterpart=None, random_concepts=None, num_ran
             return concept in random_concepts
 
         else:
-            return 'random500_' in concept
+            return concept[:3] == "Neg"
 
     # print class, it will be the same for all
     print("Class =", results[0]['target_class'])
@@ -54,14 +54,17 @@ def plot_results(results, random_counterpart=None, random_concepts=None, num_ran
 
         # store random
         if is_random_concept(result['cav_concept']):
+            print(f"cav is random concept: {result['cav_concept']}") #p2r
             if result['bottleneck'] not in random_i_ups:
+                print(f"bottleneck is: {result['bottleneck']}") #p2r
                 random_i_ups[result['bottleneck']] = []
 
             random_i_ups[result['bottleneck']].append(result['i_up'])
-
+        else:
+            print(f"cav is not random concept: {result['cav_concept']}") #p2r
     # to plot, must massage data again
     plot_data = {}
-
+    
     # print concepts and classes with indentation
     for concept in result_summary:
 
@@ -73,6 +76,8 @@ def plot_results(results, random_counterpart=None, random_concepts=None, num_ran
                 i_ups = [item['i_up'] for item in result_summary[concept][bottleneck]]
 
                 # Calculate statistical significance
+
+
                 _, p_val = ttest_ind(random_i_ups[bottleneck], i_ups)
 
                 if bottleneck not in plot_data:
@@ -98,12 +103,13 @@ def plot_results(results, random_counterpart=None, random_concepts=None, num_ran
                           "not significant" if p_val > min_p_val else "significant"))
 
     # subtract number of random experiments
+    len_res_sum = sum([len(v) for v in result_summary.values()])
     if random_counterpart:
-        num_concepts = len(result_summary) - 1
+        num_concepts = len_res_sum - 1
     elif random_concepts:
-        num_concepts = len(result_summary) - len(random_concepts)
+        num_concepts = len_res_sum - len(random_concepts)
     else:
-        num_concepts = len(result_summary) - num_random_exp
+        num_concepts = len_res_sum - num_random_exp
 
     num_bottlenecks = len(plot_data)
     bar_width = 0.35
@@ -111,9 +117,18 @@ def plot_results(results, random_counterpart=None, random_concepts=None, num_ran
     # create location for each bar. scale by an appropriate factor to ensure
     # the final plot doesn't have any parts overlapping
     index = np.arange(num_concepts) * bar_width * (num_bottlenecks + 1)
-
-    # matplotlib
+    # print("TEST1") #p2r
+    # print("Filtered concepts:", [concept for concept in result_summary if not is_random_concept(concept)])
+    # print("Number of concepts:", num_concepts)
+    # print("Index array:", index)
+    # print("TEST1") #p2r
+    # # matplotlib
     fig, ax = plt.subplots()
+    if num_concepts <= 0:
+        print("Error: No non-random concepts found. Check TCAV results.")
+        for key, item in result_summary.items():
+            print(key, item)
+        return
 
     # draw all bottlenecks individually
     for i, [bn, vals] in enumerate(plot_data.items()):
@@ -139,4 +154,4 @@ def plot_results(results, random_counterpart=None, random_concepts=None, num_ran
     labels.append('insignificant (p_val > {})'.format(min_p_val))
     ax.legend(handles, labels)
     fig.tight_layout()
-    plt.show()
+    fig.savefig('tcav_scores.png')

@@ -1,0 +1,13 @@
+working_dir: "./tcav_class_test"
+source_dir: "source_dir"
+targets: [1]
+concepts: ["Pos-EX_1"]
+random_concepts: ["Neg-EX_1", "Neg-EX_2"]
+num_random_exp: 3
+label_path: "labels.txt"
+bottlenecks: ["layer3", "layer4"]
+alphas: [0.1]
+max_examples: 100
+model_weights: "weights/best_resnet50.pth"
+model: "resnet50"
+# config: null
