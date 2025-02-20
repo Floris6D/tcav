@@ -319,7 +319,6 @@ class ResNet50Wrapper(PublicImageModelWrapper):
     def get_cutted_model(self, bottleneck):
         return ResNet50_cutted(self.model, bottleneck)
 
-
 class ResNet152_cutted(torch.nn.Module):
     def __init__(self, resnet152, bottleneck):
         super(ResNet152_cutted, self).__init__()
@@ -336,7 +335,6 @@ class ResNet152_cutted(torch.nn.Module):
                 continue  # Stop at the bottleneck layer
             if not bottleneck_met:
                 continue
-
             self.layers.append(layer)
             self.layers_names.append(name)
 

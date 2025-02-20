@@ -40,6 +40,7 @@ def get_cav(model, source_dir, bottlenecks, concept, random_counterpart=None, la
             elif method == "rcr":
                 rcr = compute_RCR(acts_concept, labels)
                 #TODO: turn into metrics for loss
+                #TODO perhaps delete this whole thing, whattehell we even doing here
             
             
             

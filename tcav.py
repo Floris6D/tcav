@@ -6,7 +6,7 @@ import numpy as np
 import run_params
 import tensorflow as tf
 import utils
-from activation_generator import get_activations_for_concept
+from activation_generator import ImageActivationGenerator
 
 import os
 NEG_PREFIX = "Neg-"
@@ -163,12 +163,14 @@ class TCAV(object):
 
 
 
-    def compute_tcav(self, bottlenecks, concept, random_counterpart):
+    def compute_tcav(self, model, source_dir, bottlenecks, concept, random_counterpart):
+        activation_dir = None
+        act_gen = ImageActivationGenerator(model, source_dir, activation_dir, max_examples=500)
         if not isinstance(bottlenecks, list):
             bottlenecks = [bottlenecks]
         for bottleneck in bottlenecks:
-            acts_concept = get_activations_for_concept(concept, bottleneck)
-            acts_random = get_activations_for_concept(random_counterpart, bottleneck)
+            acts_concept = act_gen.get_activations_for_concept(concept, bottleneck)
+            acts_random = act_gen.get_activations_for_concept(random_counterpart, bottleneck)
             
             
 
